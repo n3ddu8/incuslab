@@ -10,6 +10,10 @@ tailscale_authkey: <your-key>
 ```
 Now run:
 ```shell
-ansible-playbook playbook.yaml -JK
+echo <your-vault-password> >> .vaultkey
+sudo chmod 600 .vaultkey
 ```
-where `-J` is shorthand for `--ask-vault-password` and `-K` is shorthand for `--ask-become-pass` and will prompt the user for their passwords at run-time.
+and finally:
+```shell
+ansible-playbook playbook.yaml --vault-password-file .vaultkey
+```
