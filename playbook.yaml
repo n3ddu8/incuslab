@@ -1,0 +1,12 @@
+- name: Check for Prereqs
+  hosts: localhost
+  tasks:
+    - name: Check if Incus is installed
+      command: rpm -q incus
+      register: incus_check
+      ignore_errors: yes
+
+    - name: Fail if Incus is not installed
+      fail:
+        msg: "Required package 'Incus' is not installed"
+      when: incus_check.rc != 0
