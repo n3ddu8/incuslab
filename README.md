@@ -1,5 +1,11 @@
 # Incus Homelab
 
+An Ansible playbook to setup some Incus containers and add them to your tailnet, useful for quick and dirty testing whilst protecting your "production" homelab.
+
+### Pre-requisites
+- [Incus](https://linuxcontainers.org/incus/)
+- [Tailscale](https://tailscale.com/)
+
 ## Setup
 Generate a [Tailscale Auth Key](https://login.tailscale.com/admin/settings/authkeys). Ensure to make the key `reusable`, for Incus containers that I spin up and tear down a lot, I also choose `ephemeral`. Run:
 ```shell
