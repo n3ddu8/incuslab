@@ -1,6 +1,7 @@
 - name: Prereqs
   hosts: localhost
   become: yes
+  gather_facts: false
   tasks:
     - name: Check if Incus is installed
       command: rpm -q incus
@@ -24,6 +25,7 @@
 
 - name: Incus profile
   hosts: localhost
+  gather_facts: false
   tasks:
     - name: Check if profile already exists
       command: incus profile show k3s
@@ -34,3 +36,31 @@
     - name: Create an Incus profile
       ansible.builtin.shell: incus profile create k3s < profile.yaml
       when: k3s_check.rc != 0
+
+- name: Setup Incus containers
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    container_names:
+      - alpha
+      - beta
+      - gamma
+
+  tasks:
+    - name: Check if container {{ item }} exists
+      ansible.builtin.shell: |
+        incus info {{ item }}
+      loop: "{{ container_names }}"
+      register: container_check
+      failed_when: false
+      changed_when: false
+
+    - name: Create container if it doesn't exist
+      ansible.builtin.shell: |
+        incus launch images:ubuntu/24.04 {{ item.item }} \
+        --profile default --profile k3s
+      loop: "{{ container_check.results }}"
+      when: item.rc != 0
+      changed_when: true
+
