@@ -1,0 +1,16 @@
+- name: Teardown Incus containers
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Stop Incus containers
+      ansible.builtin.shell: |
+        incus stop {{ item }}
+      loop: "{{ container_names }}"
+
+    - name: Remove Incus containers
+      ansible.builtin.shell: |
+        incus rm {{ item }}
+      loop: "{{ container_names }}"
