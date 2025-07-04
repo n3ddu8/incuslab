@@ -64,3 +64,39 @@
       when: item.rc != 0
       changed_when: true
 
+- name: Setup Tailscale
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    container_names:
+      - alpha
+      - beta
+      - gamma
+
+  tasks:
+    - name: Get tailscale status
+      ansible.builtin.command: tailscale status
+      register: tailscale_status
+      changed_when: false
+
+    - name: Setup tailscale
+      ansible.builtin.shell: |
+        incus exec {{ item }} -- sh -c "
+          apt update && apt install curl -y &&
+          curl -fsSL https://tailscale.com/install.sh | sh
+        "
+      loop: "{{ container_names }}"
+      when: item not in tailscale_status.stdout
+      changed_when: true
+
+    - name: Add to tailnet
+      ansible.builtin.shell: |
+        incus exec {{ item }} -- sh -c "
+          tailscale up --authkey {{ tailscale_authkey }} &&
+          tailscale set --ssh
+        "
+      loop: "{{ container_names }}"
+      when: item not in tailscale_status.stdout
+      changed_when: true
+
