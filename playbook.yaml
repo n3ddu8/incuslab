@@ -1,6 +1,7 @@
 - name: Ensure Incus is installed
   hosts: localhost
   gather_facts: false
+
   tasks:
     - name: Check if Incus is installed
       command: rpm -q incus
@@ -29,12 +30,8 @@
 - name: Setup Incus containers
   hosts: localhost
   gather_facts: false
-
-  vars:
-    container_names:
-      - alpha
-      - beta
-      - gamma
+  vars_files:
+    - vars.yaml
 
   tasks:
     - name: Check if container {{ item }} exists
@@ -56,12 +53,8 @@
 - name: Setup Tailscale
   hosts: localhost
   gather_facts: false
-
-  vars:
-    container_names:
-      - alpha
-      - beta
-      - gamma
+  vars_files:
+    - vars.yaml
 
   tasks:
     - name: Get tailscale status
