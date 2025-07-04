@@ -1,5 +1,6 @@
-- name: Check for Prereqs
+- name: Prereqs
   hosts: localhost
+  become: yes
   tasks:
     - name: Check if Incus is installed
       command: rpm -q incus
@@ -11,7 +12,17 @@
         msg: "Required package 'Incus' is not installed"
       when: incus_check.rc != 0
 
-- name: Setup Incus profile
+    - name: Add the Overlay module
+      community.general.modprobe:
+        name: overlay
+        state: present
+
+    - name: Add the Netfilter module
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
+
+- name: Incus profile
   hosts: localhost
   tasks:
     - name: Check if profile already exists
