@@ -10,3 +10,16 @@
       fail:
         msg: "Required package 'Incus' is not installed"
       when: incus_check.rc != 0
+
+- name: Setup Incus profile
+  hosts: localhost
+  tasks:
+    - name: Check if profile already exists
+      command: incus profile show k3s
+      register: k3s_check
+      failed_when: false
+      changed_when: false
+
+    - name: Create an Incus profile
+      ansible.builtin.shell: incus profile create k3s < profile.yaml
+      when: k3s_check.rc != 0

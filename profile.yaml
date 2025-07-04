@@ -1,0 +1,11 @@
+config:
+  security.privileged: "true"
+  security.nesting: "true"
+  linux.kernel_modules: br_netfilter,overlay,ip_tables,nf_nat
+description: K3S-compatible profile
+devices:
+  kmsg:
+    path: /dev/kmsg
+    source: /dev/kmsg
+    type: unix-char
+name: k3s
