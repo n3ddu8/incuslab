@@ -13,16 +13,6 @@
         msg: "Required package 'Incus' is not installed"
       when: incus_check.rc != 0
 
-    - name: Add the Overlay module
-      community.general.modprobe:
-        name: overlay
-        state: present
-
-    - name: Add the Netfilter module
-      community.general.modprobe:
-        name: br_netfilter
-        state: present
-
 - name: Incus profile
   hosts: localhost
   gather_facts: false
@@ -99,4 +89,3 @@
       loop: "{{ container_names }}"
       when: item not in tailscale_status.stdout
       changed_when: true
-
