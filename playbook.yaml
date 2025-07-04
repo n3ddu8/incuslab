@@ -1,6 +1,5 @@
-- name: Prereqs
+- name: Ensure Incus is installed
   hosts: localhost
-  become: yes
   gather_facts: false
   tasks:
     - name: Check if Incus is installed
@@ -66,9 +65,18 @@
 
   tasks:
     - name: Get tailscale status
-      ansible.builtin.command: tailscale status
-      register: tailscale_status
+      ansible.builtin.command: tailscale status --json
+      register: tailscale_status_json
       changed_when: false
+
+    - name: Parse JSON
+      set_fact:
+        tailscale_names: >-
+          {{
+            (tailscale_status_json.stdout | from_json).Peer | dict2items |
+            map(attribute='value.HostName') | list
+            + [ (tailscale_status_json.stdout | from_json).Self.HostName ]
+          }}
 
     - name: Setup tailscale
       ansible.builtin.shell: |
@@ -77,7 +85,7 @@
           curl -fsSL https://tailscale.com/install.sh | sh
         "
       loop: "{{ container_names }}"
-      when: item not in tailscale_status.stdout
+      when: item not in tailscale_names
       changed_when: true
 
     - name: Add to tailnet
@@ -87,5 +95,5 @@
           tailscale set --ssh
         "
       loop: "{{ container_names }}"
-      when: item not in tailscale_status.stdout
+      when: item not in tailscale_names
       changed_when: true
