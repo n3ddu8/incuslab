@@ -13,7 +13,22 @@
         msg: "Required package 'Incus' is not installed"
       when: incus_check.rc != 0
 
-- name: Incus profile
+- name: Add required kernel modules
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Add the Overlay module
+      community.general.modprobe:
+        name: overlay
+        state: present
+  
+    - name: Add the Netfilter module
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
+
+- name: Create Incus profile
   hosts: localhost
   gather_facts: false
   tasks:
@@ -46,6 +61,23 @@
       ansible.builtin.shell: |
         incus launch images:ubuntu/24.04 {{ item.item }} \
         --profile default --profile k3s
+      loop: "{{ container_check.results }}"
+      when: item.rc != 0
+      changed_when: true
+
+    - name: Add proc-sys kernel
+      ansible.builtin.shell: |
+        incus config device add {{ item.item }} proc-sys kernel \
+          source=/proc/sys/kernel path=/proc/sys/kernel recursive=true \
+          type=disk
+      loop: "{{ container_check.results }}"
+      when: item.rc != 0
+      changed_when: true
+
+    - name: Add proc-sys-vm vm
+      ansible.builtin.shell: |
+        incus config device add {{ item.item }} proc-sys-vm vm \
+        source=/proc/sys/vm path=/proc/sys/vm recursive=true type=disk
       loop: "{{ container_check.results }}"
       when: item.rc != 0
       changed_when: true
