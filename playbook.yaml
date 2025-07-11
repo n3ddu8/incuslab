@@ -140,7 +140,7 @@
     - name: Add to tailnet
       ansible.builtin.shell: |
         incus exec {{ item }} -- sh -c "
-          tailscale up --authkey {{ tailscale_authkey }} &&
+          tailscale up --authkey {{ tailscale_authkey }} --reset &&
           tailscale set --ssh
         "
       loop: "{{ container_names }}"
