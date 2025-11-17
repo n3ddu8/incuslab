@@ -1,3 +1,5 @@
+# DEPRECATED: I now use [kind](https://kind.sigs.k8s.io) for Kubernetes testing.
+
 # Incus Homelab
 
 An Ansible playbook to setup some Incus containers and add them to your tailnet, useful for quick and dirty testing whilst protecting your "production" homelab.
